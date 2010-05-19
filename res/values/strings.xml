@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Droid Ball Menu</string>
+    <string name="app_name">Droid Ball</string>
+<string name="new_game">New Game</string>
+<string name="resume_game">Resume Game</string>
+<string name="high_score">High Score</string>
+<string name="game_settings">Settings</string>
+<string name="about">About</string>
+<string name="game_exit">Exit</string>
+<string name="ClassicMode">Classic</string>
+<string name="NetworkMode">Network</string>
+<string name="TimeTrailMode">Time Trail</string>
+<string name="PracticeMode">Practice</string>
+<color name="mmTitleColor">#C38EC7</color>
+<dimen name="mainBtnSize">75pt</dimen>
+<color name="mmBtnColor">#2554C7</color>
+<dimen name="mmBtnTextSize">20sp</dimen>
+<string name="gm_normal">Normal Mode</string>
+<string name="gm_timetrial">Time Trial Mode</string>
+<string name="gm_network">Network Mode</string>
+<string name="gm_practice">Practice Mode</string>
+<string name="gm_backToMain">Back</string>
+</resources>

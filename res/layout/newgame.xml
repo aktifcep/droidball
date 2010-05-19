@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal|center_vertical"
+    android:background="@drawable/background_lite"
+  >
+  
+  <TextView  
+    	android:layout_width="wrap_content" 
+    	android:layout_height="35pt" 
+    	android:text=""
+    	android:textSize="35sp"
+    	android:textColor="@color/mmTitleColor"
+    	android:textStyle="bold|italic"
+    />
+    <Button
+    	android:id="@+id/normalGame"
+    	android:layout_width="@dimen/mainBtnSize"
+    	android:layout_height="wrap_content" 
+    	android:text="@string/gm_normal"
+    	android:textColor="@color/mmBtnColor"
+    	android:textSize="@dimen/mmBtnTextSize"
+    	
+    />
+     <Button
+    	android:id="@+id/timeTrialGame"
+    	android:layout_width="@dimen/mainBtnSize"
+    	android:layout_height="wrap_content" 
+    	android:text="@string/gm_timetrial"
+    	android:textColor="@color/mmBtnColor"
+    	android:textSize="@dimen/mmBtnTextSize"
+    	
+    />
+     <Button
+    	android:id="@+id/networkGame"
+    	android:layout_width="@dimen/mainBtnSize"
+    	android:layout_height="wrap_content" 
+    	android:text="@string/gm_network"
+    	android:textColor="@color/mmBtnColor"
+    	android:textSize="@dimen/mmBtnTextSize"
+    	
+    />
+     <Button
+    	android:id="@+id/practiceGame"
+    	android:layout_width="@dimen/mainBtnSize"
+    	android:layout_height="wrap_content" 
+    	android:text="@string/gm_practice"
+    	android:textColor="@color/mmBtnColor"
+    	android:textSize="@dimen/mmBtnTextSize"
+    	
+    />
+    <Button
+    	android:id="@+id/backToMain"
+    	android:layout_width="@dimen/mainBtnSize"
+    	android:layout_height="wrap_content" 
+    	android:text="@string/gm_backToMain"
+    	android:textColor="@color/mmBtnColor"
+    	android:textSize="@dimen/mmBtnTextSize"
+    	
+    />
+</LinearLayout>
