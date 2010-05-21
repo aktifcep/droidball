@@ -20,7 +20,7 @@ public class GameController extends View {
 	ControllerButton up;
 	ControllerButton upRight;
 	ControllerButton right;
-	Bitmap dpad_center;
+	ControllerButton down;
 	
 	public GameController(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -28,8 +28,6 @@ public class GameController extends View {
         mContext = context;
         //setFocusable(true);        
         setupButton();
-        
-        dpad_center = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.dpad_center);
 	}
 	
 	private void setupButton()
@@ -39,12 +37,14 @@ public class GameController extends View {
 		up = new ControllerButton(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.up));
 		upRight = new ControllerButton(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.up_right));
 		right = new ControllerButton(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.right));
+		down = new ControllerButton(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.dpad_center));
 		
 		left.setPosition(25, 40);
 		leftUp.setPosition(25, 0);
 		up.setPosition(65, 0);
 		upRight.setPosition(105, 0);
 		right.setPosition(105, 40);
+		down.setPosition(65, 40);
 	}
 	
 	private void updateControlState(boolean []keys)
@@ -61,6 +61,7 @@ public class GameController extends View {
 		
 		keys[GameControl.KEY_RIGHT] = right.pressed | upRight.pressed;
 		
+		keys[GameControl.KEY_DOWN] = down.pressed;
 		//Vibrator vib = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
 		//vib.vibrate(500);
 	}
@@ -77,6 +78,7 @@ public class GameController extends View {
 		up.updateState(x, y, event.getAction());
 		upRight.updateState(x, y, event.getAction());
 		right.updateState(x, y, event.getAction());
+		down.updateState(x, y, event.getAction());
 		
     	if (event.getAction() == MotionEvent.ACTION_DOWN) {
     		String msg = "[DOWN("+x+","+y+")]";
@@ -106,7 +108,7 @@ public class GameController extends View {
 	@Override
 	protected void onDraw (Canvas canvas)
 	{
-		Paint paint = new Paint();
+		//Paint paint = new Paint();
     	// empty canvas
     	canvas.drawARGB(255, 201, 194, 180);
     	
@@ -116,15 +118,13 @@ public class GameController extends View {
 		up.onDraw(canvas);
 		upRight.onDraw(canvas);
 		right.onDraw(canvas);
-		
-		paint.setAlpha(100);
-		canvas.drawBitmap(dpad_center, 65, 40, paint);
+		down.onDraw(canvas);
     	//Draw Ground Border...
-    	paint.setColor(Color.GRAY);
-    	paint.setStyle(Paint.Style.STROKE);
+    	//paint.setColor(Color.GRAY);
+    	//paint.setStyle(Paint.Style.STROKE);
     	//paint.setStrokeWidth(3);
     	//canvas.drawRect(0, 0, canvas.getWidth()-1, this.getHeight()-2, paint);
-    	canvas.drawText("Message: ["+ mText +"]", 50, 10, paint);
+    	//canvas.drawText("Message: ["+ mText +"]", 50, 10, paint);
 	}
 	
 	//Controller Button Class that have logic of button...

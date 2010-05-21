@@ -10,15 +10,13 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Rect;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
 import android.graphics.Region.Op;
 
-
-public class DroidPlayer {
-
+public class DroidEnemy {
 	private Context mContext;
 	private Bitmap mPlayerImage;
 	
@@ -38,16 +36,13 @@ public class DroidPlayer {
     
     private int width;
     private int height;
-    
-    private Path colRect = new Path();
-    public Region CollisionRegion;
-    
-    public DroidPlayer(Context context)
+        
+    public DroidEnemy(Context context)
 	{
     	this.mContext = context;
 		m_position.setVector(50, 50);
 
-		mPlayerImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.droid_green);
+		mPlayerImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.droid_grey);
 		width = mPlayerImage.getWidth();
     	height = mPlayerImage.getHeight();
     	
@@ -107,55 +102,55 @@ public class DroidPlayer {
 				m_position.X+width, m_position.Y+height);
 	}
 	
-	public void updatePhysics(Environment env) {
+	public void updatePhysics(Environment env, DroidBall ball) {
 		float old_scalarVel = m_scalarVel;
 		
-		if(env.keys[GameControl.KEY_LEFT])
-		{			
-			m_angle -= m_angularVelocity;
-		}
-		if(env.keys[GameControl.KEY_RIGHT])
-		{
-			m_angle += m_angularVelocity;
-		}
-		if(m_angle >= 360)
-		{
-			m_angle -= 360;
-		}
-		else if(m_angle < 0)
-		{
-			m_angle = 360 + m_angle;
-		}
-		if( env.keys[GameControl.KEY_UP])
-		{
-			if(m_scalarVel < 20)
-			{
-				//m_velocity.setVector(m_velocity.X, m_velocity.Y-2);
-				m_scalarVel += 5;
-			
-			}
-		}
-		else
-		{
-			if(m_scalarVel > 0)
-			{
-				//m_velocity.setVector(m_velocity.X, m_velocity.Y+1);
-				m_scalarVel -= 2;
-			}
-			else
-			{
-				//m_velocity.setVector(m_velocity.X, 0);
-				m_scalarVel = 0;
-			}
-		}
-		if( env.keys[GameControl.KEY_DOWN] )
-		{
-			if(m_velocity.Y > 0)
-			{
-				//m_velocity.setVector(m_velocity.X, m_velocity.Y+2);
-				m_scalarVel -= 5;
-			}
-		}
+//		if(env.keys[GameControl.KEY_LEFT])
+//		{			
+//			m_angle -= m_angularVelocity;
+//		}
+//		if(env.keys[GameControl.KEY_RIGHT])
+//		{
+//			m_angle += m_angularVelocity;
+//		}
+//		if(m_angle >= 360)
+//		{
+//			m_angle -= 360;
+//		}
+//		else if(m_angle < 0)
+//		{
+//			m_angle = 360 + m_angle;
+//		}
+//		if( env.keys[GameControl.KEY_UP])
+//		{
+//			if(m_scalarVel < 20)
+//			{
+//				//m_velocity.setVector(m_velocity.X, m_velocity.Y-2);
+//				m_scalarVel += 5;
+//			
+//			}
+//		}
+//		else
+//		{
+//			if(m_scalarVel > 0)
+//			{
+//				//m_velocity.setVector(m_velocity.X, m_velocity.Y+1);
+//				m_scalarVel -= 2;
+//			}
+//			else
+//			{
+//				//m_velocity.setVector(m_velocity.X, 0);
+//				m_scalarVel = 0;
+//			}
+//		}
+//		if( env.keys[GameControl.KEY_DOWN] )
+//		{
+//			if(m_velocity.Y > 0)
+//			{
+//				//m_velocity.setVector(m_velocity.X, m_velocity.Y+2);
+//				m_scalarVel -= 5;
+//			}
+//		}
 		
 		if( !updatePosition(env))
 		{
@@ -241,64 +236,7 @@ public class DroidPlayer {
 
 	public boolean collision(RectF rect)
 	{		
-		boolean isCollided = false;
-		
-		float wsVelocityX = m_scalarVel;
-		float wsVelocityY = m_scalarVel;
-		int angle90 =  (int)Math.abs(m_angle)%90;
-		//if Mod 90 of angle is zero than make it 90...
-		if(m_angle > 0)			
-			angle90 = angle90==0?90:angle90;
-		
-		m_torque = angle90/90f ;
-		
-		if( m_angle >= 0 && m_angle <= 90 )
-		{			
-			wsVelocityX = wsVelocityX * m_torque;
-			wsVelocityY = -wsVelocityY * (1-m_torque);
-		}
-		else if( m_angle > 90 && m_angle <= 180 )
-		{
-			wsVelocityX = wsVelocityX * (1-m_torque);
-			wsVelocityY = wsVelocityY * m_torque;
-		}
-		else if( m_angle > 180 && m_angle <= 270 )
-		{
-			wsVelocityX = -wsVelocityX * m_torque;
-			wsVelocityY = wsVelocityY * (1-m_torque);
-		}
-		else if( m_angle > 270 && m_angle <= 360 )
-		{
-			wsVelocityX = -wsVelocityX * (1-m_torque);
-			wsVelocityY = -wsVelocityY * m_torque;
-		}
-		Matrix mat = new Matrix();
-		mat.setRotate(m_angle, m_position.X+10, m_position.Y+15);
-		
-		Path mePath = new Path();
-		
-		PointF center = new PointF((int)m_position.X, (int)m_position.Y);
-		float points[] = new float[]{center.x, center.y, center.x + width, center.y+height}; 
-		RectF me = new RectF(points[0], points[1], points[2], points[3]);
-		Rect meRectInt = new Rect((int)points[0], (int)points[1], (int)points[2]+20, (int)points[3]+20);
-		mePath.addRect(me, Path.Direction.CCW);
-		
-		//mePath.
-		mePath.transform(mat);
-		//mePath.
-		colRect = mePath;
-		//colRect = me;
-		Region reg = new Region();
-		Region clip = new Region();
-		clip.set(meRectInt);
-		reg.setPath(mePath, clip);
-		CollisionRegion = reg;
-		Rect intersectRect = new Rect((int)rect.left, (int)rect.top, (int)rect.right, (int)rect.bottom);
-		isCollided = reg.op(intersectRect, Op.INTERSECT);
-		//isCollided = RectF.intersects(me, rect);
-		
-		return isCollided;
+		return false;
 	}
-	
 	
 }
