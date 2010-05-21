@@ -28,7 +28,7 @@ public class GoalPost {
 		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeWidth(2);
 		
-		canvas.drawRect(getBound(), paint);
+		//canvas.drawRect(getBound(), paint);
 	}
 	public RectF getBound()
 	{

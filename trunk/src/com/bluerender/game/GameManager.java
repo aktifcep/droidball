@@ -1,5 +1,8 @@
 package com.bluerender.game;
 
+import net.phys2d.raw.Contact;
+import net.phys2d.raw.collide.BoxCircleCollider;
+import net.phys2d.raw.collide.CircleCircleCollider;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,6 +25,7 @@ public class GameManager {
 	private Bitmap mGroundImage;
 	//game objects
     DroidPlayer player;
+    DroidEnemy enemy;
     DroidBall ball;
     Phys2DPlayer p2;
     GoalPost gpPlayer;
@@ -30,19 +34,22 @@ public class GameManager {
     RectF mWalls[];
     
     int mPGoals = 0;
+    int mEGoals = 0;
     int mGoalBreak = 10;
     
 	public GameManager(Environment env, Context context, GameThread gThread)
 	{
 		this.mEnv = env;
 		this.mContext = context;
-		mGroundImage = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ground3d);
+		mGroundImage = BitmapFactory.decodeResource(mContext.getResources(), 
+				R.drawable.ground);
 	}
 	
 	public void Init()
 	{
 		this.ball = new DroidBall(mContext);
 		this.player = new DroidPlayer(mContext);
+		this.enemy = new DroidEnemy(mContext);
 		
 		this.p2 = new Phys2DPlayer();
 		gpPlayer = new GoalPost(mContext, GoalSide.PLAYER);
@@ -57,11 +64,13 @@ public class GameManager {
 	{
 		mGameState = GameState.STATE_RUNNING;
 		//Set initial object postion...
-		this.player.setLocation(50, (int)330);
-		this.ball.setLocation((int)140, (int)200);	
+		this.player.setLocation(140, (int)330);
+		this.ball.setLocation((int)30, (int)190);
+		this.enemy.setLocation(140, (int)50);
+		this.enemy.setRotation(180);
 		//Set initial object velocity...
 		this.player.m_velocity.setVector(0, 0);
-		this.ball.m_velocity.setVector(0, 0);
+		this.ball.m_velocity.setVector(20, 0);
 	}
 	
 	private void createWalls()
@@ -71,20 +80,20 @@ public class GameManager {
 		
 		mWalls = new RectF[6];
 		try{
-			mWalls[0] = new RectF(mEnv.playArea.left-3, mEnv.playArea.top,
+			mWalls[0] = new RectF(mEnv.playArea.left-20, mEnv.playArea.top,
 					mEnv.playArea.left, mEnv.playArea.bottom);
 			mWalls[1] = new RectF(mEnv.playArea.right, mEnv.playArea.top,
-					mEnv.playArea.right+3, mEnv.playArea.bottom+3);
+					mEnv.playArea.right+20, mEnv.playArea.bottom+3);
 			
-			mWalls[2] = new RectF(mEnv.playArea.left, mEnv.playArea.top,
+			mWalls[2] = new RectF(mEnv.playArea.left, mEnv.playArea.top-20,
 					mEnv.playArea.left + 100, mEnv.playArea.top+3);
-			mWalls[3] = new RectF(mEnv.playArea.left + 185, mEnv.playArea.top,
+			mWalls[3] = new RectF(mEnv.playArea.left + 185, mEnv.playArea.top-20,
 					mEnv.playArea.right, mEnv.playArea.top+3);
 			
 			mWalls[4] = new RectF(mEnv.playArea.left, mEnv.playArea.bottom,
-					mEnv.playArea.left+105, mEnv.playArea.bottom+3);
+					mEnv.playArea.left+105, mEnv.playArea.bottom+20);
 			mWalls[5] = new RectF(mEnv.playArea.left + 185, mEnv.playArea.bottom,
-					mEnv.playArea.right, mEnv.playArea.bottom+3);
+					mEnv.playArea.right, mEnv.playArea.bottom+20);
 			}
 			catch(Exception e)
 			{
@@ -111,15 +120,16 @@ public class GameManager {
 		// Draw Goal Post...
 		drawGoalPost(canvas);
 
-		player.drawSprite(canvas);
 		ball.drawSprite(canvas);
-		// p2.drawSprite(canvas);
+		player.drawSprite(canvas);
+		enemy.drawSprite(canvas);
+		//p2.drawSprite(canvas);
 
 		if (mGameState == GameState.STATE_GOAL)
 		{
 			//Draw Game Stats...
-			paint.setStrokeWidth(1);
-			paint.setTextSize(35);
+			paint.setStrokeWidth(3);
+			paint.setTextSize(50);
 			paint.setColor(Color.MAGENTA);
 			canvas.drawText("Goal....!", 100, 200, paint);
 			
@@ -133,14 +143,19 @@ public class GameManager {
 		}
 		
 		//Draw Game Stats...
-		paint.setStrokeWidth(1);
+		paint.setStrokeWidth(3);
 		paint.setTextSize(15);
-		paint.setColor(Color.BLUE);
-		canvas.drawText("Goal: "+mPGoals, 10, mEnv.playArea.bottom -20, paint);
+		paint.setColor(Color.RED);
+		canvas.drawText("Goal "+mEGoals, 20, 15, paint);
+		//Draw Enemy Goals...
+		paint.setColor(Color.GREEN);
+		canvas.drawText("Goal "+ mPGoals, 20, mEnv.playArea.bottom + 20, paint);
 		
 		paint.setStrokeWidth(1);
 		paint.setColor(Color.GRAY);
-		canvas.drawText("Message: [" + msg + "]", 50, 200, paint);
+		//canvas.drawText("Message: [" + msg + "]", 50, 200, paint);
+		
+		//Phys2DUtility.drawContacts(canvas, contacts, contacts.length);
     }
     
     private void drawWalls(Canvas canvas)
@@ -183,9 +198,10 @@ public class GameManager {
     public void updateGame() {
         
     	if (mGameState == GameState.STATE_RUNNING) {
-			player.updatePhysics(mEnv);
+			player.updatePhysics(mEnv);			
 			ball.updatePhysics(mEnv);
-			// p2.update(mEnv);
+			enemy.updatePhysics(mEnv, ball);
+			//p2.update(mEnv);
 
 			checkCollision();
     	}
@@ -198,9 +214,17 @@ public class GameManager {
 
     }
     boolean mCollided = false;
+    /** The contacts array used whe nsearching for collisions */
+	Contact[] contacts = new Contact[] {new Contact(), new Contact()};
     public void checkCollision()
     {
-    	if( mCollided=player.collision(ball.getBound()) && !mCollided)
+    	CircleCircleCollider collider3 = new CircleCircleCollider();
+    	
+    	
+		int count = collider3.collide(contacts, player.getBody(), ball.getBody());
+		
+		if( count > 0)
+    	//if( mCollided=player.collision(ball.getBound()) && !mCollided)
     	{
     		ball.updateAfterCollision(player);
     		player.ApplyBreak();
@@ -209,6 +233,11 @@ public class GameManager {
     	if(gpEnemy.getBound().intersect(ball.getBound()) )
     	{
     		mPGoals++;
+    		mGameState = GameState.STATE_GOAL;
+    	}
+    	else if(gpPlayer.getBound().intersect(ball.getBound()) )
+    	{
+    		mEGoals++;
     		mGameState = GameState.STATE_GOAL;
     	}
     	//check ball boundry...

@@ -1,5 +1,7 @@
 package com.bluerender.game;
 
+import net.phys2d.raw.Body;
+import net.phys2d.raw.shapes.Circle;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -24,24 +26,35 @@ public class DroidBall {
     public Vector m_velocity = new Vector();
     //private float m_scalarVel = 0f;
     
+    /** The size of body D */
+	private Body ballBody;
+	
     public int width;
     public int height;
 	
     public DroidBall(Context context){  
     	mBallImage = new Bitmap[4];
-    	mBallImage[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.ball_1);
-    	mBallImage[1] = BitmapFactory.decodeResource(context.getResources(), R.drawable.ball_2);
-    	mBallImage[2] = BitmapFactory.decodeResource(context.getResources(), R.drawable.ball_3);
-    	mBallImage[3] = BitmapFactory.decodeResource(context.getResources(), R.drawable.ball_4);
+    	mBallImage[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.ball_seq1);
+    	mBallImage[1] = BitmapFactory.decodeResource(context.getResources(), R.drawable.ball_seq2);
+    	mBallImage[2] = BitmapFactory.decodeResource(context.getResources(), R.drawable.ball_seq3);
+    	mBallImage[3] = BitmapFactory.decodeResource(context.getResources(), R.drawable.ball_seq4);
     	
     	m_position.setVector(50, 150);
     	width = mBallImage[0].getWidth();
     	height = mBallImage[0].getHeight();
+    	
+    	ballBody = new Body(new Circle(width/2), 0);
     }
     
     public void setLocation(int x, int y)
     {
     	m_position.setVector(x, y);
+    }
+    
+    public Body getBody()
+    {
+    	ballBody.setPosition(m_position.X + width/2, m_position.Y + height/2);
+    	return ballBody;
     }
 
 	public void drawSprite(Canvas canvas) {
@@ -49,9 +62,9 @@ public class DroidBall {
 		
 		paint.setColor(Color.YELLOW);
     	paint.setTextSize(10);
-		RectF r1 = getBound();
-		canvas.drawText("Ball: [("+r1.left +", "+r1.top+", "+r1.right+", "+r1.bottom+"), ("+ m_velocity.X +", "+m_velocity.Y+")]",
-						15, 100, paint);
+//		RectF r1 = getBound();
+//		canvas.drawText("Ball: [("+r1.left +", "+r1.top+", "+r1.right+", "+r1.bottom+"), ("+ m_velocity.X +", "+m_velocity.Y+")]",
+//						15, 100, paint);
 		
 		canvas.drawBitmap(mBallImage[image_seq++], m_position.X, m_position.Y, paint);
 		if(image_seq == 4)
@@ -62,6 +75,8 @@ public class DroidBall {
 		{
 			image_seq = 0;
 		}
+		
+		Phys2DUtility.drawCircleBody(canvas, this.getBody(), false);
 	}
 	public RectF getBound()
 	{
@@ -70,7 +85,6 @@ public class DroidBall {
 	}
 
 	public void updatePhysics(Environment env) {
-		boolean sideStruck = false;
 		
 		if(Math.abs(m_velocity.X) > 0)
 			m_velocity.X = (int)(Math.abs(m_velocity.X)-1)*(m_velocity.X/Math.abs(m_velocity.X));
@@ -88,7 +102,7 @@ public class DroidBall {
 	
 	public void updateAfterCollision(DroidPlayer player)
 	{
-		this.m_velocity.setVector(player.m_velocity.X+1, player.m_velocity.Y+1);
+		this.m_velocity.setVector(player.m_velocity.X * 2, player.m_velocity.Y * 2);
 		boolean isCollided = false;
 		float x = m_position.X;
 		float y = m_velocity.Y;
