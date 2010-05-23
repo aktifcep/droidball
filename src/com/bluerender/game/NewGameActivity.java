@@ -8,6 +8,9 @@ import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
+import com.admob.android.ads.AdManager;
+import com.admob.android.ads.AdView;
+
 public class NewGameActivity extends Activity {
 	/** Called when the activity is first created. */
     @Override
@@ -25,6 +28,12 @@ public class NewGameActivity extends Activity {
         addMainClickListener(R.id.networkGame);
         addMainClickListener(R.id.practiceGame);
         addMainClickListener(R.id.backToMain);
+        
+        //AdManager.setPublisherId("a14be2b0eeb26aa");
+        AdManager.setTestDevices( new String[] {                 
+        	     AdManager.TEST_EMULATOR,             // Android emulator
+        	     //"E83D20734F72FB3108F104ABC0FFC738",  // My T-Mobile G1 Test Phone
+        	     } );  
     }
     
     public void addMainClickListener(int resId)
