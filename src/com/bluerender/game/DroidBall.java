@@ -22,7 +22,7 @@ public class DroidBall {
 	
 	private Bitmap []mBallImage;
 	private int image_seq;
-	private Vector m_position = new Vector();
+	public Vector m_position = new Vector();
     public Vector m_velocity = new Vector();
     //private float m_scalarVel = 0f;
     
@@ -102,7 +102,23 @@ public class DroidBall {
 	
 	public void updateAfterCollision(DroidPlayer player)
 	{
-		this.m_velocity.setVector(player.m_velocity.X * 2, player.m_velocity.Y * 2);
+		this.m_velocity.setVector(player.m_velocity.X * 3, player.m_velocity.Y * 3);
+		boolean isCollided = false;
+		float x = m_position.X;
+		float y = m_velocity.Y;
+		RectF rect = player.getBound();
+		if(x > rect.left)
+		{
+			if(y > rect.top)
+			{
+				
+			}
+		}	
+		
+	}
+	public void updateAfterCollision(DroidEnemy player)
+	{
+		this.m_velocity.setVector(player.m_velocity.X * 3f, player.m_velocity.Y * 3f);
 		boolean isCollided = false;
 		float x = m_position.X;
 		float y = m_velocity.Y;

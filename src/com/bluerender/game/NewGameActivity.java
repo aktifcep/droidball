@@ -29,10 +29,11 @@ public class NewGameActivity extends Activity {
         addMainClickListener(R.id.practiceGame);
         addMainClickListener(R.id.backToMain);
         
-        //AdManager.setPublisherId("a14be2b0eeb26aa");
+        //AdManager.setTestAction("video");
+        
         AdManager.setTestDevices( new String[] {                 
         	     AdManager.TEST_EMULATOR,             // Android emulator
-        	     //"E83D20734F72FB3108F104ABC0FFC738",  // My T-Mobile G1 Test Phone
+        	     "338ED5A939A16390E3ED05494596088C",  // My T-Mobile G1 Test Phone
         	     } );  
     }
     
