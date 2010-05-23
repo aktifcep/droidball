@@ -104,66 +104,45 @@ public class DroidEnemy {
 	
 	public void updatePhysics(Environment env, DroidBall ball) {
 		float old_scalarVel = m_scalarVel;
-		
-//		if(env.keys[GameControl.KEY_LEFT])
-//		{			
-//			m_angle -= m_angularVelocity;
-//		}
-//		if(env.keys[GameControl.KEY_RIGHT])
-//		{
-//			m_angle += m_angularVelocity;
-//		}
-//		if(m_angle >= 360)
-//		{
-//			m_angle -= 360;
-//		}
-//		else if(m_angle < 0)
-//		{
-//			m_angle = 360 + m_angle;
-//		}
-//		if( env.keys[GameControl.KEY_UP])
-//		{
-//			if(m_scalarVel < 20)
-//			{
-//				//m_velocity.setVector(m_velocity.X, m_velocity.Y-2);
-//				m_scalarVel += 5;
-//			
-//			}
-//		}
-//		else
-//		{
-//			if(m_scalarVel > 0)
-//			{
-//				//m_velocity.setVector(m_velocity.X, m_velocity.Y+1);
-//				m_scalarVel -= 2;
-//			}
-//			else
-//			{
-//				//m_velocity.setVector(m_velocity.X, 0);
-//				m_scalarVel = 0;
-//			}
-//		}
-//		if( env.keys[GameControl.KEY_DOWN] )
-//		{
-//			if(m_velocity.Y > 0)
-//			{
-//				//m_velocity.setVector(m_velocity.X, m_velocity.Y+2);
-//				m_scalarVel -= 5;
-//			}
-//		}
-		
+
+		double angle = getAngle(this.m_position, ball.m_position);
+		m_angle = (float)angle+90;
+		if(m_scalarVel < 10)
+			m_scalarVel += 5;
 		if( !updatePosition(env))
 		{
 			m_scalarVel = old_scalarVel;
 		}
 	}
-	
+	public double getAngle(Vector a, Vector b) {
+
+		double dx = b.X - a.X;
+		double dy = b.Y - a.Y;
+		double angle = 0.0d;
+
+		if (dx == 0.0) {
+			if(dy == 0.0)     angle = 0.0;
+			else if(dy > 0.0) angle = Math.PI / 2.0;
+			else              angle = (Math.PI * 3.0) / 2.0;
+		}
+		else if(dy == 0.0) {
+			if(dx > 0.0)      angle = 0.0;
+			else              angle = Math.PI;
+		}
+		else {
+			if(dx < 0.0)      angle = Math.atan(dy/dx) + Math.PI;
+			else if(dy < 0.0) angle = Math.atan(dy/dx) + (2*Math.PI);
+			else              angle = Math.atan(dy/dx);
+		}
+		return (angle * 180) / Math.PI;
+	}
+	 
 	public void ApplyBreak()
 	{
 		if(m_scalarVel > 0)
 		{
 			//m_velocity.setVector(m_velocity.X, m_velocity.Y+1);
-			m_scalarVel -= 2;
+			m_scalarVel = 5;
 			if(m_scalarVel < 0)m_scalarVel=0;
 		}
 	}

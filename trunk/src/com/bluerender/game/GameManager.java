@@ -220,14 +220,22 @@ public class GameManager {
     {
     	CircleCircleCollider collider3 = new CircleCircleCollider();
     	
-    	
+    	//Check for player ball collision....
 		int count = collider3.collide(contacts, player.getBody(), ball.getBody());
-		
 		if( count > 0)
     	//if( mCollided=player.collision(ball.getBound()) && !mCollided)
     	{
     		ball.updateAfterCollision(player);
     		player.ApplyBreak();
+    	}
+		
+		//Check for enemy ball collision....
+		count = collider3.collide(contacts, enemy.getBody(), ball.getBody());
+		if( count > 0)
+    	//if( mCollided=player.collision(ball.getBound()) && !mCollided)
+    	{
+    		ball.updateAfterCollision(enemy);
+    		//enemy.ApplyBreak();
     	}
     	//Check for goal collision...
     	if(gpEnemy.getBound().intersect(ball.getBound()) )
