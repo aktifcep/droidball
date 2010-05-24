@@ -14,6 +14,7 @@ import android.graphics.RectF;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import com.bluerender.game.DroidBall.BallDrawMode;
 import com.bluerender.game.GameView.GameThread;
 import com.bluerender.game.GoalPost.GoalSide;
 
@@ -30,6 +31,7 @@ public class GameManager {
     Phys2DPlayer p2;
     GoalPost gpPlayer;
     GoalPost gpEnemy;
+    GoalPost currentGP;
     String msg;
     RectF mWalls[];
     
@@ -115,7 +117,7 @@ public class GameManager {
 		canvas.drawBitmap(mGroundImage, 0, 0, paint);
 
 		// draw walls...
-		drawWalls(canvas);
+		//drawWalls(canvas);
 
 		// Draw Goal Post...
 		drawGoalPost(canvas);
@@ -132,6 +134,16 @@ public class GameManager {
 			paint.setTextSize(50);
 			paint.setColor(Color.MAGENTA);
 			canvas.drawText("Goal....!", 100, 200, paint);
+						
+			if(currentGP != null)
+			{
+				ball.setDrawMode(BallDrawMode.Goal);
+				
+				RectF bound = currentGP.getBound();
+				float x = (bound.left + bound.right)/2 - ball.width/2; 
+				float y = (bound.top + bound.bottom)/2 - ball.height/2; 
+				ball.setLocation((int)x, (int)y);
+			}
 			
 			if(--mGoalBreak == 0)
 			{
@@ -174,6 +186,7 @@ public class GameManager {
 			}
 		}
     }
+    
     private void drawGoalPost(Canvas canvas)
     {
     	Paint paint = new Paint();
@@ -213,6 +226,7 @@ public class GameManager {
         mEnv.keys[GameControl.KEY_LEFT] = false;
 
     }
+    
     boolean mCollided = false;
     /** The contacts array used whe nsearching for collisions */
 	Contact[] contacts = new Contact[] {new Contact(), new Contact()};
@@ -241,11 +255,13 @@ public class GameManager {
     	if(gpEnemy.getBound().intersect(ball.getBound()) )
     	{
     		mPGoals++;
+    		currentGP = gpEnemy;
     		mGameState = GameState.STATE_GOAL;
     	}
     	else if(gpPlayer.getBound().intersect(ball.getBound()) )
     	{
     		mEGoals++;
+    		currentGP = gpPlayer;
     		mGameState = GameState.STATE_GOAL;
     	}
     	//check ball boundry...
