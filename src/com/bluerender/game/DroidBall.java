@@ -20,8 +20,14 @@ import android.util.Log;
  */
 public class DroidBall {
 	
+	public enum BallDrawMode
+	{
+		Normal,Goal
+	}
 	private Bitmap []mBallImage;
 	private int image_seq;
+	private BallDrawMode drawMode = BallDrawMode.Normal;
+	
 	public Vector m_position = new Vector();
     public Vector m_velocity = new Vector();
     //private float m_scalarVel = 0f;
@@ -51,6 +57,11 @@ public class DroidBall {
     	m_position.setVector(x, y);
     }
     
+    public void setDrawMode(BallDrawMode mode)
+    {
+    	this.drawMode = mode;
+    }
+    
     public Body getBody()
     {
     	ballBody.setPosition(m_position.X + width/2, m_position.Y + height/2);
@@ -66,16 +77,24 @@ public class DroidBall {
 //		canvas.drawText("Ball: [("+r1.left +", "+r1.top+", "+r1.right+", "+r1.bottom+"), ("+ m_velocity.X +", "+m_velocity.Y+")]",
 //						15, 100, paint);
 		
-		canvas.drawBitmap(mBallImage[image_seq++], m_position.X, m_position.Y, paint);
-		if(image_seq == 4)
-		{
-			image_seq = 0;
-		}
-		else if((int)m_velocity.X == 0 && (int)m_velocity.Y == 0)
-		{
-			image_seq = 0;
-		}
-		
+    	if(drawMode == BallDrawMode.Normal)
+    	{
+    		canvas.drawBitmap(mBallImage[image_seq++], m_position.X, m_position.Y, paint);
+    		if((int)m_velocity.X == 0 && (int)m_velocity.Y == 0)
+    		{
+    			image_seq = 0;
+    		}
+    	}
+    	else
+    	{
+    		canvas.drawBitmap(mBallImage[image_seq++], m_position.X, m_position.Y, paint);
+
+    	}
+    	//Check for Index limit...
+    	if(image_seq == mBallImage.length)
+    	{
+    		image_seq = 0;
+    	}
 		Phys2DUtility.drawCircleBody(canvas, this.getBody(), false);
 	}
 	public RectF getBound()

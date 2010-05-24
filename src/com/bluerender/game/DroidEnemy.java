@@ -109,6 +109,7 @@ public class DroidEnemy {
 		m_angle = (float)angle+90;
 		if(m_scalarVel < 10)
 			m_scalarVel += 5;
+		
 		if( !updatePosition(env))
 		{
 			m_scalarVel = old_scalarVel;
