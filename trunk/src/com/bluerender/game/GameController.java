@@ -110,7 +110,7 @@ public class GameController extends View {
 	{
 		//Paint paint = new Paint();
     	// empty canvas
-    	canvas.drawARGB(255, 201, 194, 180);
+    	canvas.drawARGB(255, 0, 0, 0);
     	
     	//Draw the controls here...
     	left.onDraw(canvas);

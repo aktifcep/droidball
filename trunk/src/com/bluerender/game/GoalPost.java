@@ -11,7 +11,7 @@ public class GoalPost {
 	private Vector m_position = new Vector();
    
     public int width = 80;
-    public int height= 25;
+    public int height= 40;
     GoalSide mSide;
     
     public GoalPost(Context context, GoalSide side){    
