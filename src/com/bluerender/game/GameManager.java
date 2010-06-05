@@ -1,5 +1,8 @@
 package com.bluerender.game;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import net.phys2d.raw.Contact;
 import net.phys2d.raw.collide.BoxCircleCollider;
 import net.phys2d.raw.collide.CircleCircleCollider;
@@ -38,6 +41,8 @@ public class GameManager {
     int mPGoals = 0;
     int mEGoals = 0;
     int mGoalBreak = 10;
+    //Round time in minutes...
+    float roundTime = 1;
     
 	public GameManager(Environment env, Context context, GameThread gThread)
 	{
@@ -61,6 +66,18 @@ public class GameManager {
 		createWalls();
 		
 		mGameState = GameState.STATE_INIT;
+		
+		Timer timer = new Timer();
+        timer.schedule(new RoundTimerTask(), ((long)roundTime * 60 * 1000));
+	}
+	class RoundTimerTask extends TimerTask{
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			mGameState = GameState.STATE_ROUND_END;
+		}
+	
 	}
 	public void start()
 	{
@@ -81,21 +98,22 @@ public class GameManager {
 			return;
 		
 		mWalls = new RectF[6];
+		int wallWidth = 40;
 		try{
-			mWalls[0] = new RectF(mEnv.playArea.left-20, mEnv.playArea.top,
+			mWalls[0] = new RectF(mEnv.playArea.left-wallWidth, mEnv.playArea.top,
 					mEnv.playArea.left, mEnv.playArea.bottom);
 			mWalls[1] = new RectF(mEnv.playArea.right, mEnv.playArea.top,
-					mEnv.playArea.right+20, mEnv.playArea.bottom+3);
+					mEnv.playArea.right+wallWidth, mEnv.playArea.bottom+3);
 			
-			mWalls[2] = new RectF(mEnv.playArea.left, mEnv.playArea.top-20,
+			mWalls[2] = new RectF(mEnv.playArea.left, mEnv.playArea.top-wallWidth,
 					mEnv.playArea.left + 100, mEnv.playArea.top+3);
-			mWalls[3] = new RectF(mEnv.playArea.left + 185, mEnv.playArea.top-20,
+			mWalls[3] = new RectF(mEnv.playArea.left + 185, mEnv.playArea.top-wallWidth,
 					mEnv.playArea.right, mEnv.playArea.top+3);
 			
 			mWalls[4] = new RectF(mEnv.playArea.left, mEnv.playArea.bottom,
-					mEnv.playArea.left+105, mEnv.playArea.bottom+20);
+					mEnv.playArea.left+105, mEnv.playArea.bottom+wallWidth);
 			mWalls[5] = new RectF(mEnv.playArea.left + 185, mEnv.playArea.bottom,
-					mEnv.playArea.right, mEnv.playArea.bottom+20);
+					mEnv.playArea.right, mEnv.playArea.bottom+wallWidth);
 			}
 			catch(Exception e)
 			{
@@ -117,7 +135,7 @@ public class GameManager {
 		canvas.drawBitmap(mGroundImage, 0, 0, paint);
 
 		// draw walls...
-		//drawWalls(canvas);
+		drawWalls(canvas);
 
 		// Draw Goal Post...
 		drawGoalPost(canvas);
@@ -153,6 +171,22 @@ public class GameManager {
 				start();
 			}
 		}
+		else if(mGameState == GameState.STATE_ROUND_END)
+		{
+			String winner="";
+			if(mPGoals > mEGoals)
+			{
+				winner = "Player One";
+			}
+			else
+				winner = "Player Two";
+			
+			//Draw Game Stats...
+			paint.setStrokeWidth(3);
+			paint.setTextSize(20);
+			paint.setColor(Color.BLUE);
+			canvas.drawText(winner + " Wins!", 20, 200, paint);
+		}
 		
 		//Draw Game Stats...
 		paint.setStrokeWidth(3);
@@ -170,7 +204,9 @@ public class GameManager {
 		//Phys2DUtility.drawContacts(canvas, contacts, contacts.length);
     }
     
-    private void drawWalls(Canvas canvas)
+    
+    @SuppressWarnings("unused")
+	private void drawWalls(Canvas canvas)
     {
     	Paint paint = new Paint();
     	if(mWalls == null)
@@ -195,9 +231,9 @@ public class GameManager {
     	paint.setTextSize(15);
     	//canvas.drawText("Game State: "+_gameState, 50, 40, paint);
     	
-    	gpEnemy.setPosition(mEnv.canvasWidth/2 - gpEnemy.width/2 , 0);
+    	gpEnemy.setPosition(mEnv.canvasWidth/2 - gpEnemy.width/2 , -15);
     	gpPlayer.setPosition(mEnv.canvasWidth/2- gpPlayer.width/2 ,
-    			mEnv.canvasHeight-25);
+    			mEnv.canvasHeight-40);
     	
     	gpEnemy.drawSprite(canvas);
     	gpPlayer.drawSprite(canvas);
@@ -237,7 +273,6 @@ public class GameManager {
     	//Check for player ball collision....
 		int count = collider3.collide(contacts, player.getBody(), ball.getBody());
 		if( count > 0)
-    	//if( mCollided=player.collision(ball.getBound()) && !mCollided)
     	{
     		ball.updateAfterCollision(player);
     		player.ApplyBreak();
@@ -246,19 +281,31 @@ public class GameManager {
 		//Check for enemy ball collision....
 		count = collider3.collide(contacts, enemy.getBody(), ball.getBody());
 		if( count > 0)
-    	//if( mCollided=player.collision(ball.getBound()) && !mCollided)
     	{
     		ball.updateAfterCollision(enemy);
     		//enemy.ApplyBreak();
     	}
+		
+		//Check for enemy player collision....
+		count = collider3.collide(contacts, enemy.getBody(), player.getBody());
+		if( count > 0)
+    	{
+    		//ball.updateAfterCollision(enemy);
+    		//enemy.ApplyBreak();
+			//float velX;
+			//float velY;
+			//if(player.m_velocity.X > enemy.m_velocity.X)
+			//	velX = player.m_velocity.X > enemy.m_velocity.X;
+    	}
+		
     	//Check for goal collision...
-    	if(gpEnemy.getBound().intersect(ball.getBound()) )
+    	if(gpEnemy.getBound().contains(ball.getBound()) )
     	{
     		mPGoals++;
     		currentGP = gpEnemy;
     		mGameState = GameState.STATE_GOAL;
     	}
-    	else if(gpPlayer.getBound().intersect(ball.getBound()) )
+    	else if(gpPlayer.getBound().contains(ball.getBound()) )
     	{
     		mEGoals++;
     		currentGP = gpPlayer;
@@ -274,25 +321,27 @@ public class GameManager {
     private void checkBallBoundry()
     {
     	RectF ballBound = ball.getBound();
+    	float wallForce = 1.5f;
 		if( ballBound.intersect(mWalls[0]))
 		{
 			ball.setLocation((int)mEnv.playArea.left, (int)ballBound.top);
-			ball.m_velocity.X = -ball.m_velocity.X;
+			ball.m_velocity.X = -ball.m_velocity.X * wallForce;
+			//ball
 		}
 		if( ballBound.intersect(mWalls[2]) || ballBound.intersect(mWalls[3]))
 		{
 			ball.setLocation((int)ballBound.left, (int)mEnv.playArea.top);
-			ball.m_velocity.Y = -ball.m_velocity.Y;
+			ball.m_velocity.Y = -ball.m_velocity.Y * wallForce;
 		}
 		if( ball.getBound().intersect(mWalls[1]))
 		{
 			ball.setLocation((int)mEnv.playArea.right - ball.width, (int)ballBound.top);
-			ball.m_velocity.X = -ball.m_velocity.X;
+			ball.m_velocity.X = -ball.m_velocity.X * wallForce;
 		}
 		if( ballBound.intersect(mWalls[4]) || ballBound.intersect(mWalls[5]))
 		{
 			ball.setLocation((int)ballBound.left, (int)mEnv.playArea.bottom - ball.height);
-			ball.m_velocity.Y = -ball.m_velocity.Y;
+			ball.m_velocity.Y = -ball.m_velocity.Y * wallForce;
 		}
     }
     

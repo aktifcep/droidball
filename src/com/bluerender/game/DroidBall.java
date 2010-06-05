@@ -121,8 +121,9 @@ public class DroidBall {
 	
 	public void updateAfterCollision(DroidPlayer player)
 	{
-		this.m_velocity.setVector(player.m_velocity.X * 3, player.m_velocity.Y * 3);
-		boolean isCollided = false;
+		this.m_velocity.setVector(player.m_velocity.X * 2 + this.m_velocity.X/2,
+					player.m_velocity.Y * 2 + this.m_velocity.Y/2);
+
 		float x = m_position.X;
 		float y = m_velocity.Y;
 		RectF rect = player.getBound();
@@ -137,7 +138,8 @@ public class DroidBall {
 	}
 	public void updateAfterCollision(DroidEnemy player)
 	{
-		this.m_velocity.setVector(player.m_velocity.X * 3f, player.m_velocity.Y * 3f);
+		this.m_velocity.setVector(player.m_velocity.X * 2f + this.m_velocity.X/2,
+				player.m_velocity.Y * 2f + this.m_velocity.Y/2);
 		boolean isCollided = false;
 		float x = m_position.X;
 		float y = m_velocity.Y;

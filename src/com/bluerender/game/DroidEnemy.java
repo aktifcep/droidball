@@ -1,7 +1,11 @@
 package com.bluerender.game;
 
 import net.phys2d.raw.Body;
+import net.phys2d.raw.Contact;
+import net.phys2d.raw.StaticBody;
+import net.phys2d.raw.collide.LineCircleCollider;
 import net.phys2d.raw.shapes.Circle;
+import net.phys2d.raw.shapes.Line;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -91,7 +95,8 @@ public class DroidEnemy {
 		canvas.setMatrix(mat1);
 		
 		//Draw Collision Rect..
-		//paint.setColor(Color.DKGRAY);
+		paint.setColor(Color.DKGRAY);
+		canvas.drawLine(l.getX1(), l.getY1(), l.getX2(), l.getY2(), paint);
 		//canvas.drawPath(colRect, paint);
 		//Phys2DUtility.drawCircleBody(canvas, this.getBody(), false);
 	}
@@ -101,12 +106,33 @@ public class DroidEnemy {
 		return new RectF(m_position.X, m_position.Y, 
 				m_position.X+width, m_position.Y+height);
 	}
-	
+	Line l = null;
 	public void updatePhysics(Environment env, DroidBall ball) {
 		float old_scalarVel = m_scalarVel;
-
-		double angle = getAngle(this.m_position, ball.m_position);
-		m_angle = (float)angle+90;
+		boolean isBallDown = ball.m_position.Y > this.m_position.Y; 
+		//if(isBallDown)
+		{
+			l = new Line(this.m_position.X, this.m_position.Y,
+					env.canvasWidth/2 ,
+					env.canvasHeight-40);
+			StaticBody lBody = new StaticBody(l);
+			
+			LineCircleCollider lcCol = new LineCircleCollider();
+			Contact[] contacts = new Contact[] {new Contact(), new Contact()};
+			int count = lcCol.collide(contacts, lBody, ball.getBody());
+			if(count > 0)
+			{
+				double angle = getAngle(this.m_position.X, this.m_position.Y,
+						ball.m_position.X, ball.m_position.Y);
+				m_angle = (float)angle+90;
+			}
+			else
+			{				
+				double angle = getAngle(this.m_position.X, this.m_position.Y,
+					ball.m_position.X, ball.m_position.Y-10);
+				m_angle = (float)angle+90;
+			}
+		}
 		if(m_scalarVel < 10)
 			m_scalarVel += 5;
 		
@@ -114,6 +140,10 @@ public class DroidEnemy {
 		{
 			m_scalarVel = old_scalarVel;
 		}
+	}
+	public double getAngle(float aX, float aY, float bX, float bY)
+	{
+		return getAngle(new Vector(aX, aY), new Vector(bX, bY));
 	}
 	public double getAngle(Vector a, Vector b) {
 
