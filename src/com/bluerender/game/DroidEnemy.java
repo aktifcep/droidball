@@ -129,7 +129,7 @@ public class DroidEnemy {
 			else
 			{				
 				double angle = getAngle(this.m_position.X, this.m_position.Y,
-					ball.m_position.X, ball.m_position.Y-10);
+					ball.m_position.X, ball.m_position.Y-20);
 				m_angle = (float)angle+90;
 			}
 		}
