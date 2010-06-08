@@ -32,7 +32,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         public static final int STATE_RUNNING = 4;
         public static final int STATE_WIN = 5;
         
-        private static final int SPEED = 80;
+        private static final int SPEED = 40;
         
         private int mCanvasWidth;
         private int mCanvasHeight;
