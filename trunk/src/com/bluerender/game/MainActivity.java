@@ -50,6 +50,10 @@ public class MainActivity extends Activity {
         		Intent myIntent = new Intent(MainActivity.this, com.bluerender.game.NewGameActivity.class);
         		startActivity(myIntent);   
         	}
+        	else if (btnClicked.getId() == R.id.exitGame)
+        	{
+        		MainActivity.this.finish();
+        	}
         }    
     }
 }

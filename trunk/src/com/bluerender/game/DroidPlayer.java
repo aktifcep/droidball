@@ -25,12 +25,12 @@ public class DroidPlayer {
 	/** The size of body D */
 	private Body playerBody;
 	
-	private Vector m_position = new Vector();
+	public Vector m_position = new Vector();
 	private Vector m_transPos = new Vector();
     public Vector m_velocity = new Vector();
     private float m_scalarVel = 0f;
     //angular properties
-    private float m_angle;
+    public float m_angle;
     private float m_angularVelocity = 15;
     private float m_torque;
     //private float m_inertia;

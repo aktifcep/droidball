@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.graphics.Paint.Style;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -43,6 +44,8 @@ public class GameManager {
     int mGoalBreak = 10;
     //Round time in minutes...
     float roundTime = 1;
+    long mRoundStartTime ;
+    long mElapseTime;
     
 	public GameManager(Environment env, Context context, GameThread gThread)
 	{
@@ -69,7 +72,10 @@ public class GameManager {
 		
 		Timer timer = new Timer();
         timer.schedule(new RoundTimerTask(), ((long)roundTime * 60 * 1000));
+        
+        mRoundStartTime = System.currentTimeMillis();
 	}
+	
 	class RoundTimerTask extends TimerTask{
 
 		@Override
@@ -135,7 +141,7 @@ public class GameManager {
 		canvas.drawBitmap(mGroundImage, 0, 0, paint);
 
 		// draw walls...
-		drawWalls(canvas);
+		//drawWalls(canvas);
 
 		// Draw Goal Post...
 		drawGoalPost(canvas);
@@ -174,28 +180,41 @@ public class GameManager {
 		else if(mGameState == GameState.STATE_ROUND_END)
 		{
 			String winner="";
-			if(mPGoals > mEGoals)
+			if(mPGoals == mEGoals)
 			{
-				winner = "Player One";
+				winner = "Game Draw!";
+			}
+			else if(mPGoals > mEGoals)
+			{
+				winner = "Player One Wins!";
 			}
 			else
-				winner = "Player Two";
+				winner = "Player Two Wins!";
 			
+			this.ball.m_velocity.setVector(0, 0);
 			//Draw Game Stats...
-			paint.setStrokeWidth(3);
-			paint.setTextSize(20);
-			paint.setColor(Color.BLUE);
-			canvas.drawText(winner + " Wins!", 20, 200, paint);
+			paint.setStrokeWidth(4);
+			paint.setStyle(Style.FILL_AND_STROKE);
+			//paint.se
+			paint.setTextSize(35);
+			paint.setColor(Color.parseColor("#357EC7"));
+			float tWidth = paint.measureText(winner);
+			canvas.drawText(winner + "", canvas.getWidth()/2 - tWidth/2, 200, paint);
 		}
 		
 		//Draw Game Stats...
-		paint.setStrokeWidth(3);
+		paint.setStrokeWidth(2);
+		paint.setStyle(Style.FILL_AND_STROKE);
 		paint.setTextSize(15);
 		paint.setColor(Color.RED);
 		canvas.drawText("Goal "+mEGoals, 20, 15, paint);
 		//Draw Enemy Goals...
 		paint.setColor(Color.GREEN);
 		canvas.drawText("Goal "+ mPGoals, 20, mEnv.playArea.bottom + 20, paint);
+		//Draw Round Time
+		paint.setColor(Color.parseColor("#7E354D"));
+		
+		canvas.drawText("Time " + mElapseTime, 250, 15, paint);
 		
 		paint.setStrokeWidth(1);
 		paint.setColor(Color.GRAY);
@@ -246,13 +265,18 @@ public class GameManager {
      */
     public void updateGame() {
         
-    	if (mGameState == GameState.STATE_RUNNING) {
+    	if (mGameState == GameState.STATE_RUNNING) 
+    	{
+    		//calculate elapse time...
+    		mEnv.timeElapsed = mElapseTime = (System.currentTimeMillis() - mRoundStartTime)/1000;
+    		
 			player.updatePhysics(mEnv);			
 			ball.updatePhysics(mEnv);
 			enemy.updatePhysics(mEnv, ball);
 			//p2.update(mEnv);
 
 			checkCollision();
+					
     	}
     	
     	//Release KeyEvent...
