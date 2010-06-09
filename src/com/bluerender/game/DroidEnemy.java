@@ -27,19 +27,20 @@ public class DroidEnemy {
 	/** The size of body D */
 	private Body playerBody;
 	
-	private Vector m_position = new Vector();
+	public Vector m_position = new Vector();
 	private Vector m_transPos = new Vector();
+	public Vector m_lastPosition = new Vector();
     public Vector m_velocity = new Vector();
-    private float m_scalarVel = 0f;
+    public float m_scalarVel = 0f;
     //angular properties
-    private float m_angle;
+    public float m_angle;
     private float m_angularVelocity = 15;
     private float m_torque;
     //private float m_inertia;
     private int radius = 15;
     
-    private int width;
-    private int height;
+    public int width;
+    public int height;
         
     public DroidEnemy(Context context)
 	{
@@ -98,7 +99,7 @@ public class DroidEnemy {
 		paint.setColor(Color.DKGRAY);
 		canvas.drawLine(l.getX1(), l.getY1(), l.getX2(), l.getY2(), paint);
 		//canvas.drawPath(colRect, paint);
-		//Phys2DUtility.drawCircleBody(canvas, this.getBody(), false);
+		Phys2DUtility.drawCircleBody(canvas, this.getBody(), false);
 	}
 	
 	public RectF getBound()
@@ -114,7 +115,7 @@ public class DroidEnemy {
 		{
 			l = new Line(this.m_position.X, this.m_position.Y,
 					env.canvasWidth/2 ,
-					env.canvasHeight-40);
+					env.canvasHeight-30);
 			StaticBody lBody = new StaticBody(l);
 			
 			LineCircleCollider lcCol = new LineCircleCollider();
@@ -235,6 +236,8 @@ public class DroidEnemy {
 		else
 		{
 			m_velocity.setVector(wsVelocityX, wsVelocityY);
+			
+			m_lastPosition.setVector(m_position.X, m_position.Y);
 			//Now update the position...
 			m_position.setVector(m_position.X + wsVelocityX, m_position.Y + wsVelocityY);
 
