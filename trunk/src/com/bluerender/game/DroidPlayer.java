@@ -29,7 +29,7 @@ public class DroidPlayer {
 	private Vector m_transPos = new Vector();
 	public Vector m_lastPosition = new Vector();
     public Vector m_velocity = new Vector();
-    private float m_scalarVel = 0f;
+    public float m_scalarVel = 0f;
     //angular properties
     public float m_angle;
     private float m_angularVelocity = 15;
@@ -67,6 +67,13 @@ public class DroidPlayer {
     
     public Body getBody()
     {
+//    	Matrix mat1 = new Matrix();
+//	    //transform into position
+//        
+//	    mat1.setRotate(m_angle, m_position.X+radius, m_position.Y+radius);
+//	    float []pointsToTrans =  new float[]{m_position.X+ width/2, m_position.Y+ height/2};
+//        mat1.mapPoints(pointsToTrans);
+
     	playerBody.setPosition(m_transPos.X , m_transPos.Y );
     	//playerBody.
     	return playerBody;
@@ -97,9 +104,9 @@ public class DroidPlayer {
 		canvas.setMatrix(mat1);
 		
 		//Draw Collision Rect..
-		//paint.setColor(Color.DKGRAY);
-		//canvas.drawPath(colRect, paint);
-		//Phys2DUtility.drawCircleBody(canvas, this.getBody(), false);
+		paint.setColor(Color.DKGRAY);
+		
+		Phys2DUtility.drawCircleBody(canvas, this.getBody(), false);
 	}
 	
 	public RectF getBound()

@@ -3,14 +3,17 @@ package com.bluerender.game;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import net.phys2d.raw.Body;
 import net.phys2d.raw.Contact;
 import net.phys2d.raw.collide.BoxCircleCollider;
 import net.phys2d.raw.collide.CircleCircleCollider;
+import net.phys2d.raw.shapes.Circle;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
@@ -91,11 +94,12 @@ public class GameManager {
 		//Set initial object postion...
 		this.player.setLocation(140, (int)330);
 		this.ball.setLocation((int)30, (int)190);
-		this.enemy.setLocation(140, (int)50);
+		this.enemy.setLocation(100, (int)50);
 		this.enemy.setRotation(180);
 		//Set initial object velocity...
 		this.player.m_velocity.setVector(0, 0);
 		this.ball.m_velocity.setVector(20, 0);
+		this.ball.setDrawMode(BallDrawMode.Normal);
 	}
 	
 	private void createWalls()
@@ -314,12 +318,8 @@ public class GameManager {
 		count = collider3.collide(contacts, enemy.getBody(), player.getBody());
 		if( count > 0)
     	{
-    		//ball.updateAfterCollision(enemy);
-    		//enemy.ApplyBreak();
-			//float velX;
-			//float velY;
-			//if(player.m_velocity.X > enemy.m_velocity.X)
-			//	velX = player.m_velocity.X > enemy.m_velocity.X;
+    		//Do collision response for player & enemy...
+    		colResPlayerEnemy();
     	}
 		
     	//Check for goal collision...
@@ -342,10 +342,82 @@ public class GameManager {
     	msg = "Collided, "+mCollided;
     }
     
+    private void colResPlayerEnemy()
+    {
+    	float x = enemy.m_lastPosition.X;
+		float y = enemy.m_lastPosition.Y;
+		float lx = enemy.m_lastPosition.X;
+		float ly = enemy.m_lastPosition.Y;
+		Vector pPos = player.m_lastPosition;
+		float lpx = pPos.X;
+        float lpy = pPos.Y;
+		Vector eVel  = new Vector(enemy.m_velocity.X, enemy.m_velocity.Y);
+		Vector pVel  = new Vector(player.m_velocity.X, player.m_velocity.Y);
+		Body eBody = new Body(new Circle(enemy.width/3), 0);
+		Body pBody = new Body(new Circle(player.width/3), 0);
+		
+		for(int i=5;i<100;i+=5)
+		{
+			Matrix mat2 = new Matrix();
+	        //transform into position
+	        float edx = x + eVel.X * i/100;
+	        float edy = y + eVel.Y * i/100;
+	        mat2.setRotate(enemy.m_angle, edx+15, edy+15);
+	        
+	        float []pointsToTrans2 =  new float[]{edx+ (enemy.width)/2, edy+ (enemy.height)/2};
+	        mat2.mapPoints(pointsToTrans2);
+	        
+			eBody.setPosition(pointsToTrans2[0], pointsToTrans2[1]);
+			
+			//bBody.setPosition(x+ width/2 + bVel.X * i/100, y + height/2 + bVel.Y * i/100);
+			//store transform, (like opengl's glPushMatrix())
+	        Matrix mat1 = new Matrix();
+	        //transform into position
+	        float dx = pPos.X + pVel.X * i/100;
+	        float dy = pPos.Y + pVel.Y * i/100;
+	        mat1.setRotate(player.m_angle, dx+15, dy+15);
+	        
+	        float []pointsToTrans =  new float[]{dx+ (player.width)/2, dy+ (player.height)/2};
+	        mat1.mapPoints(pointsToTrans);
+	        
+			pBody.setPosition(pointsToTrans[0], pointsToTrans[1]);
+			
+			CircleCircleCollider collider3 = new CircleCircleCollider();
+	    	
+	    	//Check for player ball collision....
+			Contact[] contacts = new Contact[] {new Contact(), new Contact()};
+			int count = collider3.collide(contacts, pBody, eBody);
+			if(count > 0)
+			{
+				//this is collision point...
+				player.m_position.setVector(lpx, lpy);
+				enemy.m_position.setVector(lx, ly);
+				break;
+			}
+			lx = x + eVel.X * i/100;
+			ly = y + eVel.Y * i/100;
+			lpx = dx;
+			lpy = dy;
+		}
+		
+		//Calculate resulting velocity using Momentum Laws...
+		float v1i = player.m_scalarVel, v2i = enemy.m_scalarVel;// = initial (pre-collision) velocity of blocks
+		float v1f, v2f;// = final (post-collision) velocity of blocks
+		
+		long m1 = 100, m2 = 50;// = mass of blocks
+		
+		v1f = -v1i + 2*(m1 * v1i + m2 * v2i)/(m1 + m2);
+		v2f = -v2i + 2*(m1 * v1i + m2 * v2i)/(m1 + m2);
+						
+		player.m_scalarVel = v1f;
+		enemy.m_scalarVel = v2f;
+		//Finish Velocity Calculate...
+    }
+    
     private void checkBallBoundry()
     {
     	RectF ballBound = ball.getBound();
-    	float wallForce = 1.5f;
+    	float wallForce = 0f;
 		if( ballBound.intersect(mWalls[0]))
 		{
 			ball.setLocation((int)mEnv.playArea.left, (int)ballBound.top);
