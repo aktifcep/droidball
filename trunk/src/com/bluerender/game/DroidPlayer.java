@@ -27,6 +27,7 @@ public class DroidPlayer {
 	
 	public Vector m_position = new Vector();
 	private Vector m_transPos = new Vector();
+	public Vector m_lastPosition = new Vector();
     public Vector m_velocity = new Vector();
     private float m_scalarVel = 0f;
     //angular properties
@@ -36,8 +37,8 @@ public class DroidPlayer {
     //private float m_inertia;
     private int radius = 15;
     
-    private int width;
-    private int height;
+    public int width;
+    public int height;
     
     private Path colRect = new Path();
     public Region CollisionRegion;
@@ -230,6 +231,7 @@ public class DroidPlayer {
 		else
 		{
 			m_velocity.setVector(wsVelocityX, wsVelocityY);
+			m_lastPosition.setVector(m_position.X, m_position.Y);
 			//Now update the position...
 			m_position.setVector(m_position.X + wsVelocityX, m_position.Y + wsVelocityY);
 

@@ -141,7 +141,7 @@ public class GameManager {
 		canvas.drawBitmap(mGroundImage, 0, 0, paint);
 
 		// draw walls...
-		//drawWalls(canvas);
+		drawWalls(canvas);
 
 		// Draw Goal Post...
 		drawGoalPost(canvas);
