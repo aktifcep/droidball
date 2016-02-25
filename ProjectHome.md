@@ -1,0 +1,1 @@
+Droid Ball is an sports genre game on Android Platform. This will be a soccer type game and each player has to take ball to the goal to mark a Score.
